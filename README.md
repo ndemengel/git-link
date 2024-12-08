@@ -53,7 +53,6 @@ Example:
 
 ## Limitations
 
-I haven't tested it on MacOS, and I suspect it won't work on it for people who
-haven't installed [coreutils](https://formulae.brew.sh/formula/coreutils)  or a
-similar package, since `git-link` uses the `realpath` command for now.
-
+* I've only tested it on Debian, Ubuntu and MacOS so far. But it should work on
+  most reasonably recent Unix-like systems, as it only uses very basic Bash
+  features and the `readlink` command.

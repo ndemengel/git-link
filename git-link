@@ -1,4 +1,6 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
+
+set -e
 
 DEFAULT_REMOTE="origin"
 SUPPORTED_PLATFORMS="github|gitlab"
@@ -66,12 +68,12 @@ read_and_validate_args() {
     >&2 echo "No such file: $FILE"
     exit 1
   fi
+  
+  ABS_FILE="$(readlink -f "$FILE")"
+  readonly ABS_FILE
 }
 
-find_REPO_ROOT() {
-  ABS_FILE="$(realpath "$FILE")"
-  readonly ABS_FILE
-  
+find_repo_root() {
   if [[ -d "$ABS_FILE" ]]; then
     REPO_ROOT="$ABS_FILE"
   else
@@ -79,11 +81,11 @@ find_REPO_ROOT() {
   fi
   
   # `.git` can be a directory or a regular file, in case of a worktree
-  while [[ ! -e "${REPO_ROOT}/.git" && "$(realpath "$REPO_ROOT")" != "/" ]]; do
+  while [[ ! -e "${REPO_ROOT}/.git" && "$(readlink -f "$REPO_ROOT")" != "/" ]]; do
     REPO_ROOT="${REPO_ROOT}/.."
   done
   
-  REPO_ROOT="$(realpath "$REPO_ROOT")"
+  REPO_ROOT="$(readlink -f "$REPO_ROOT")"
   readonly REPO_ROOT
   
   if [[ ! -e "${REPO_ROOT}/.git" ]]; then
@@ -151,17 +153,23 @@ forge_and_print_url() {
     if [[ -n "$END_LINE" ]]; then
       FILE_URL="${FILE_URL}-${END_LINE}"
     fi
+  else
+    >&2 echo "Script error: if \`REMOTE_TO_USE\` had been properly validated before, we wouldn't be there"
+    exit 1
   fi
 
   echo "$FILE_URL"
 }
 
+determine_file_path_in_repo() {
+  REL_FILE="${ABS_FILE#"$REPO_ROOT/"}"
+  readonly REL_FILE
+}
+
 main() {
   read_and_validate_args "$@"
-  find_REPO_ROOT
-  
-  REL_FILE="$(realpath --relative-to "$REPO_ROOT" "$FILE")"
-  readonly REL_FILE
+  find_repo_root
+  determine_file_path_in_repo
   
   cd "$REPO_ROOT"
   determine_remote_to_use
