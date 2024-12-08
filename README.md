@@ -56,3 +56,6 @@ Example:
 * I've only tested it on Debian, Ubuntu and MacOS so far. But it should work on
   most reasonably recent Unix-like systems, as it only uses very basic Bash
   features and the `readlink` command.
+* Only Github and Gitlab are supported for now.
+* It does not check whether the current revision exists on the remote.
+
